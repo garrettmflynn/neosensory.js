@@ -1,12 +1,13 @@
 {
   "name": "neosensory",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy.",
   "main": "dist/neosensory.js",
   "module": "neosensory.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack --mode production"
+    "webpack": "webpack --mode production",
+    "docs": "jsdoc -c jsdoc.config.json"
   },
   "repository": {
     "type": "git",

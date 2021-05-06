@@ -4,7 +4,7 @@
   <title>Neosensory Control Panel</title>
   <meta charset="UTF-8" />
   <!-- FOR DEPLOYMENT -->
-  <script src="https://cdn.jsdelivr.net/npm/neosensory"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/neosensory"></script> -->
 
   <!-- FOR DEVELOPMENT -->
   <script src="../../dist/neosensory.js"></script>
@@ -61,19 +61,19 @@ document.getElementById('info').onclick = () => {
 }
 
 document.getElementById('getLEDs').onclick = () => {
-    device.leds.get()
+    device.getLEDs()
 }
 
 document.getElementById('setLEDs').onclick = () => {
-    device.leds.set([[255,0,0],[0,255,0],[0,0,255]],[1,1,1])
+    device.setLEDs([[255,0,0],[0,255,0],[0,0,255]],[1,1,1])
 }
 
 document.getElementById('motorsStart').onclick = () => {
-    device.motors.start()
+    device.enableMotors()
 }
 
 document.getElementById('motorsVibrate').onclick = () => {
-    device.motors.vibrate([255,255,255,255])
+    device.vibrateMotors([[255,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,255,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,255,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,255]])
 }
 
 document.getElementById('sendcmd').onclick = () => {
