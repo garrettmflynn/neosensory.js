@@ -36,7 +36,7 @@ See the pages for the module at https://brainsatplay.com/neosensory.js. The plat
 
 ## Examples
 
-Currently this repo contains a browser-based example that allows you to connect to your Buzz device, change its LEDs, and vibrate its motors.
+Currently this repo contains a browser-based [example]{@tutorial Dashboard} that allows you to connect to your Buzz device, change its LEDs, and vibrate its motors.
 
 ## License
 
