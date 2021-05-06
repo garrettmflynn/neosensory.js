@@ -40,9 +40,6 @@ Currently this repo contains a browser-based example that allows you to connect 
 
 ## License
 
-Please note that while this Neosensory SDK has an Apache 2.0 license, 
-usage of the Neosensory API to interface with Neosensory products is 
-still  subject to the Neosensory developer terms of service located at:
-https://neosensory.com/legal/dev-terms-service.
+Please note that while this Neosensory SDK has an Apache 2.0 license,  usage of the Neosensory API to interface with Neosensory products is  still  subject to the Neosensory developer terms of service located at: https://neosensory.com/legal/dev-terms-service.
 
 See [LICENSE](https://github.com/brainsatplay/neosensory.js/blob/main/LICENSE).
