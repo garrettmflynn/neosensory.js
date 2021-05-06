@@ -1,0 +1,29 @@
+{
+  "name": "neosensory",
+  "version": "0.0.1",
+  "description": "A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy.",
+  "main": "dist/neosensory.js",
+  "module": "neosensory.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brainsatplay/neosensory.js.git"
+  },
+  "author": "Garrett Flynn",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/brainsatplay/neosensory.js/issues"
+  },
+  "homepage": "https://github.com/brainsatplay/neosensory.js#readme",
+  "dependencies": {
+    "@babel/preset-env": "^7.14.1",
+    "babel-loader": "^8.2.2",
+    "webpack": "^5.36.2"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.6.0"
+  }
+}
