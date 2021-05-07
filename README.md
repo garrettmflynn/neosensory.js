@@ -1,6 +1,8 @@
 # neosensory.js
 A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy. This reponsitory is comprised of an example dashboard and reusable module called `neosensory`, containing `neosensory.Buzz`. This will allow you to control Neosensory devices from the browser or Node.js.
 
+Note: Chromium browsers only (e.g. Google Chrome, Microsoft Edge, Opera, etc.)
+
 [![](https://img.shields.io/badge/github-source_code-blue.svg?logo=github&logoColor=white)](https://github.com/brainsatplay/neosensory.js)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/licenses/Apache-2.0)
 
