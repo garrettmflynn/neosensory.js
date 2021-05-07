@@ -10,14 +10,14 @@
 
   <!-- FOR DEVELOPMENT -->
   <script src="../../dist/neosensory.js"></script>
-  
+
 </head>
 <body style="width: 100vw; height: 100vh; overflow: none;">
     <section>
     <h1>Dashboard</h1>
     <hr>
     <div style="display: flex; justify-content: center;  align-items: stretch;">
-        <div style="min-width: 400px;">
+        <div>
             <h2>Connection</h2>
             <button id="connect">Connect to Buzz</button>
             <button id="disconnect">Disconnect from Buzz</button>
@@ -31,12 +31,24 @@
             <button id="accept">Accept Terms</button>
 
             <h2>Advanced Functions</h2>
+            <input id='buzzcmd' type='text' placeholder='send any command here' style="width: 200px;"></input><button id='sendcmd'>Send</button>
+            <h3>Neosensory Algorithm</h3>
+            <button id='pauseAlgorithm'>Pause Device Algorithm</button>
+            <button id='resumeAlgorithm'>Resume Device Algorithm</button>
+
+            <h3>Microphone</h3>
+            <button id='startAudio'>Start Audio</button>
+            <button id='stopAudio'>Stop Audio</button>
+
+            <h3>LEDS</h3>
             <button id='getLEDs'>Get LEDS</button>
             <button id='setLEDs'>Set LEDS</button>
-            <button id='motorsStart'>Start Motors</button>
+
+            <h3>Motors</h3>
+            <button id='enableMotors'>Enable Motors</button>
+            <button id='clearMotorQueue'>Clear Motor Queue</button>
             <button id='motorsVibrate'>Vibrate Motors</button>
-            <br><br>
-            <input id='buzzcmd' type='text' placeholder='device info'></input><button id='sendcmd'>Send</button>
+            <button id='disableMotors'>Disable Motors</button>
         </div>
         <pre id="message" style="
         background: black; 
@@ -45,6 +57,7 @@
         flex-grow: 1; 
         padding: 25px; 
         margin: 25px 50px; 
+        max-width: 500px;
         white-space: pre-wrap;       /* Since CSS 2.1 */
         white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
         white-space: -pre-wrap;      /* Opera 4-6 */
@@ -101,6 +114,21 @@ document.getElementById('info').onclick = () => {
     device.info()
 }
 
+document.getElementById('pauseAlgorithm').onclick = () => {
+    device.pauseDeviceAlgorithm()
+}
+
+document.getElementById('resumeAlgorithm').onclick = () => {
+    device.resumeDeviceAlgorithm()
+}
+document.getElementById('startAudio').onclick = () => {
+    device.startAudio()
+}
+
+document.getElementById('stopAudio').onclick = () => {
+    device.stopAudio()
+}
+
 document.getElementById('getLEDs').onclick = () => {
     device.getLEDs()
 }
@@ -109,17 +137,46 @@ document.getElementById('setLEDs').onclick = () => {
     device.setLEDs([[255,0,0],[0,255,0],[0,0,255]],[1,1,1])
 }
 
-document.getElementById('motorsStart').onclick = () => {
+document.getElementById('enableMotors').onclick = () => {
     device.enableMotors()
 }
 
+document.getElementById('clearMotorQueue').onclick = () => {
+    device.clearMotorQueue()
+}
+
 document.getElementById('motorsVibrate').onclick = () => {
-    device.vibrateMotors([[255,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,255,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,255,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,255]])
+    device.vibrateMotors([[255,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,255,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,255,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,255],[0,0,0,0]])
+}
+
+document.getElementById('disableMotors').onclick = () => {
+    device.disableMotors()
+}
+
+document.getElementById('getThreshold').onclick = () => {
+    device.getThreshold()
+}
+
+document.getElementById('setThreshold').onclick = () => {
+    device.getThreshold()
+}
+
+document.getElementById('getLRA').onclick = () => {
+    device.getLRA()
+}
+
+document.getElementById('setLRA').onclick = () => {
+    device.setLRA()
+}
+
+document.getElementById('setButton').onclick = () => {
+    device.setButton()
 }
 
 document.getElementById('sendcmd').onclick = () => {
     device.sendCommand(document.getElementById('buzzcmd').value);
 }
+
 
 </script>
 </html>

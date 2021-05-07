@@ -204,7 +204,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.setLRA
      * @alias setLRA
-     * @description This command sets the LRA operation mode. This setting is not persistent, and will reset to the default (open loop) if the band is reset. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description This command sets the LRA operation mode. This setting is not persistent, and will reset to the default (open loop) if the band is reset. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     setLRA = (mode) => {
@@ -218,7 +218,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.getLRA
      * @alias getLRA
-     * @description This command allows you to read the current LRA vibration mode. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description This command allows you to read the current LRA vibration mode. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     getLRA = () => {
@@ -228,7 +228,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.getLEDs
      * @alias getLEDs
-     * @description Read the current RGB and intensity calues of the device's LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Read the current RGB and intensity calues of the device's LEDs. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     getLEDs = () => {
@@ -238,7 +238,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.setLEDs
      * @alias setLEDs
-     * @description Control the color and intensity of the device's 3 LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Control the color and intensity of the device's 3 LEDs. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      * @param {array} colors Three nested arrays each containing the rgb values (0-255) for an LED.
      * @param {array} intensities An array of length 3 containing the LED intensity (0-50).
      * @example buzz.setLEDS([[255,0,0],[0,255,0],[0,0,255]],[50,50,50])
@@ -256,7 +256,7 @@ export class Buzz {
         /**
      * @method module:neosensory.Buzz.setButton
      * @alias setButton
-     * @description Control the color and intensity of the device's 3 LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Set button response and sensitivity. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      * @param {boolean} feedback Allow the device to send a response when any button is pressed.
      * @param {boolean} sensitivity Allow sensitivity changes to the microphone.
      */
