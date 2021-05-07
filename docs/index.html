@@ -3,19 +3,188 @@
 <head>
   <title>Neosensory Control Panel</title>
   <meta charset="UTF-8" />
+
+
+  <!-- FOR DEPLOYMENT -->
+  <script src="https://cdn.jsdelivr.net/npm/neosensory"></script>
+
+  <!-- FOR DEVELOPMENT -->
+  <script src="../dist/neosensory.js"></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="nav">
+        <a href="/">
+            <h1>neosensory.js</h1>
+        </a>
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <a href="https://github.com/brainsatplay/neosensory.js" target="_blank"><img src="./assets/github.svg" style="filter: invert(1); width: 80%;"></a>
+            <a href="./reference/index.html" class="link" target="_blank">Reference</a>
+        </div>
+    </div>
     <section>
-        <h1>Neosensory.js</h1>
-        <hr>
-        <h2>Examples</h2>
-        <a href="./examples/dashboard.html" target="_blank"><button>Dashboard</button></a>
-
-        <h2>Reference</h2>
-        <a href="./reference/index.html" target="_blank"><button>Go to Reference</button></a>
+        <div style="display: flex; justify-content: center;  align-items: stretch; font-size: 80%;">
+            <div>
+                <h2>Connection</h2>
+                <button id="connect">Connect to Buzz</button>
+                <button id="disconnect">Disconnect from Buzz</button>
+    
+                <h2>Basic Functions</h2>
+                <button id='battery'>Battery</button>
+                <button id='info'>Info</button>
+                
+                <h2>Developer Access</h2>
+                <button id="request">Request Developer Access</button>
+                <button id="accept">Accept Terms</button>
+    
+                <h2>Advanced Functions</h2>
+                <input id='buzzcmd' type='text' placeholder='send any command here' style="width: 200px;"></input><button id='sendcmd'>Send</button>
+                <h3>Neosensory Algorithm</h3>
+                <button id='pauseAlgorithm'>Pause Device Algorithm</button>
+                <button id='resumeAlgorithm'>Resume Device Algorithm</button>
+    
+                <h3>Microphone</h3>
+                <button id='startAudio'>Start Audio</button>
+                <button id='stopAudio'>Stop Audio</button>
+    
+                <h3>LEDS</h3>
+                <button id='getLEDs'>Get LEDS</button>
+                <button id='setLEDs'>Set LEDS</button>
+    
+                <h3>Motors</h3>
+                <button id='enableMotors'>Enable Motors</button>
+                <button id='clearMotorQueue'>Clear Motor Queue</button>
+                <button id='motorsVibrate'>Vibrate Motors</button>
+                <button id='disableMotors'>Disable Motors</button>
+            </div>
+            <pre id="message" style="
+            background: black; 
+            color: white; 
+            border-radius: 5px; 
+            flex-grow: 1; 
+            padding: 25px; 
+            margin: 25px 50px; 
+            max-width: 500px;
+            white-space: pre-wrap;       /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            overflow: scroll;
+            ">></pre>
+        </div>
     </section>
 </body>
 <script>
-</script>
+    let device = new neosensory.Buzz(
+    // Parse New Data
+    (response) => {
+        if (response) {
+            let messageDiv = document.getElementById('message')
+            // let separatedResponse = JSON.stringify(response).split(',')
+            messageDiv.innerHTML = JSON.stringify(response)
+            // separatedResponse.forEach(p => {
+            //     messageDiv.innerHTML += `<p>${p.replace(':',': ')}</p>`
+    
+            // })
+        }
+    },
+    
+    // Connection Function
+    ()=>{ console.log('connected');},
+    
+    // Disconnect Function
+    ()=>{ console.log('disconnected');}
+    )
+    
+    document.getElementById('connect').onclick = () =>{
+        device.connect()
+    }
+    
+    document.getElementById('disconnect').onclick = () =>{
+        device.disconnect();
+    }
+    
+    document.getElementById('request').onclick = () => {
+        device.requestAuthorization()
+    }
+    
+    document.getElementById('accept').onclick = () => {
+        device.acceptTerms()
+    }
+    
+    document.getElementById('battery').onclick = () => {
+        device.battery()
+    }
+    
+    document.getElementById('info').onclick = () => {
+        device.info()
+    }
+    
+    document.getElementById('pauseAlgorithm').onclick = () => {
+        device.pauseDeviceAlgorithm()
+    }
+    
+    document.getElementById('resumeAlgorithm').onclick = () => {
+        device.resumeDeviceAlgorithm()
+    }
+    document.getElementById('startAudio').onclick = () => {
+        device.startAudio()
+    }
+    
+    document.getElementById('stopAudio').onclick = () => {
+        device.stopAudio()
+    }
+    
+    document.getElementById('getLEDs').onclick = () => {
+        device.getLEDs()
+    }
+    
+    document.getElementById('setLEDs').onclick = () => {
+        device.setLEDs([[255,0,0],[0,255,0],[0,0,255]],[1,1,1])
+    }
+    
+    document.getElementById('enableMotors').onclick = () => {
+        device.enableMotors()
+    }
+    
+    document.getElementById('clearMotorQueue').onclick = () => {
+        device.clearMotorQueue()
+    }
+    
+    document.getElementById('motorsVibrate').onclick = () => {
+        device.vibrateMotors([[255,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,255,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,255,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,255],[0,0,0,0]])
+    }
+    
+    document.getElementById('disableMotors').onclick = () => {
+        device.disableMotors()
+    }
+    
+    // document.getElementById('getThreshold').onclick = () => {
+    //     device.getThreshold()
+    // }
+    
+    // document.getElementById('setThreshold').onclick = () => {
+    //     device.getThreshold()
+    // }
+    
+    // document.getElementById('getLRA').onclick = () => {
+    //     device.getLRA()
+    // }
+    
+    // document.getElementById('setLRA').onclick = () => {
+    //     device.setLRA()
+    // }
+    
+    // document.getElementById('setButton').onclick = () => {
+    //     device.setButton()
+    // }
+    
+    document.getElementById('sendcmd').onclick = () => {
+        device.sendCommand(document.getElementById('buzzcmd').value);
+    }
+    
+    
+    </script>
 </html>

@@ -1,7 +1,11 @@
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
-    /* background: black;
-    color: white; */
-    font-family: Montserrat, sans-serif
+    margin: 0;
+    font-family: Montserrat, sans-serif;
 }
 
 section {
@@ -18,3 +22,42 @@ button {
     min-width: 50px;
     padding: 10px;
 }
+
+#nav {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    color: white;
+    background: black;
+    padding: 10px 25px;
+    text-align: center;
+} a {
+    color: #fff;
+    text-decoration: none;
+}.link {
+    color: #fff;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-size: 80%;
+    letter-spacing: 0.15em;
+    display: inline-block;
+    padding-bottom: 5px;
+    margin: 0px 10px;
+    position: relative;
+  }
+  .link:after {    
+    background: none repeat scroll 0 0 transparent;
+    bottom: 0;
+    content: "";
+    display: block;
+    height: 1px;
+    left: 50%;
+    position: absolute;
+    background: #fff;
+    transition: width 0.3s ease 0s, left 0.3s ease 0s;
+    width: 0;
+  }
+  .link:hover:after { 
+    width: 100%; 
+    left: 0; 
+  }
