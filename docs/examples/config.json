@@ -1,0 +1,10 @@
+{
+    "index": {
+        "title": "Examples",
+        "children": {
+            "dashboard": {
+                "title": "Dashboard"
+            }
+        }
+    }
+}

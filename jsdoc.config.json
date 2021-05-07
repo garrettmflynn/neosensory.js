@@ -6,9 +6,8 @@
     },
     "recurseDepth": 10,                         // Only go 10 levels deep.
     "opts": {
-        "destination": "./docs/",               // Where I want my docs to be generated.
-        "recurse": true,
-        "tutorials": "./examples"
+        "destination": "./docs/reference",               // Where I want my docs to be generated.
+        "recurse": true
     },
     "templates": {
         "default": {

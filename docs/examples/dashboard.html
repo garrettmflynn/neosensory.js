@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Neosensory Control Panel</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- FOR DEPLOYMENT -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/neosensory"></script> -->
+
+  <!-- FOR DEVELOPMENT -->
+  <script src="../../dist/neosensory.js"></script>
+</head>
+<body style="width: 100vw; height: 100vh; overflow: none;">
+    <section>
+    <h1>Dashboard</h1>
+    <hr>
+    <div style="display: flex; justify-content: center;  align-items: stretch;">
+        <div style="min-width: 400px;">
+            <h2>Connection</h2>
+            <button id="connect">Connect to Buzz</button>
+            <button id="disconnect">Disconnect from Buzz</button>
+
+            <h2>Basic Functions</h2>
+            <button id='battery'>Battery</button>
+            <button id='info'>Info</button>
+            
+            <h2>Developer Access</h2>
+            <button id="request">Request Developer Access</button>
+            <button id="accept">Accept Terms</button>
+
+            <h2>Advanced Functions</h2>
+            <button id='getLEDs'>Get LEDS</button>
+            <button id='setLEDs'>Set LEDS</button>
+            <button id='motorsStart'>Start Motors</button>
+            <button id='motorsVibrate'>Vibrate Motors</button>
+            <br><br>
+            <input id='buzzcmd' type='text' placeholder='device info'></input><button id='sendcmd'>Send</button>
+        </div>
+        <pre id="message" style="
+        background: black; 
+        color: white; 
+        border-radius: 5px; 
+        flex-grow: 1; 
+        padding: 25px; 
+        margin: 25px 50px; 
+        white-space: pre-wrap;       /* Since CSS 2.1 */
+        white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+        white-space: -pre-wrap;      /* Opera 4-6 */
+        white-space: -o-pre-wrap;    /* Opera 7 */
+        word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        overflow: scroll;
+        ">></pre>
+    </div>
+</section>
+</body st>
+<script>
+let device = new neosensory.Buzz(
+// Parse New Data
+(response) => {
+    if (response) {
+        let messageDiv = document.getElementById('message')
+        // let separatedResponse = JSON.stringify(response).split(',')
+        messageDiv.innerHTML = JSON.stringify(response)
+        // separatedResponse.forEach(p => {
+        //     messageDiv.innerHTML += `<p>${p.replace(':',': ')}</p>`
+
+        // })
+    }
+},
+
+// Connection Function
+()=>{ console.log('connected');},
+
+// Disconnect Function
+()=>{ console.log('disconnected');}
+)
+
+document.getElementById('connect').onclick = () =>{
+    device.connect()
+}
+
+document.getElementById('disconnect').onclick = () =>{
+    device.disconnect();
+}
+
+document.getElementById('request').onclick = () => {
+    device.requestAuthorization()
+}
+
+document.getElementById('accept').onclick = () => {
+    device.acceptTerms()
+}
+
+document.getElementById('battery').onclick = () => {
+    device.battery()
+}
+
+document.getElementById('info').onclick = () => {
+    device.info()
+}
+
+document.getElementById('getLEDs').onclick = () => {
+    device.getLEDs()
+}
+
+document.getElementById('setLEDs').onclick = () => {
+    device.setLEDs([[255,0,0],[0,255,0],[0,0,255]],[1,1,1])
+}
+
+document.getElementById('motorsStart').onclick = () => {
+    device.enableMotors()
+}
+
+document.getElementById('motorsVibrate').onclick = () => {
+    device.vibrateMotors([[255,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,255,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,255,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,255]])
+}
+
+document.getElementById('sendcmd').onclick = () => {
+    device.sendCommand(document.getElementById('buzzcmd').value);
+}
+
+</script>
+</html>

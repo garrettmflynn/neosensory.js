@@ -1,0 +1,20 @@
+body {
+    /* background: black;
+    color: white; */
+    font-family: Montserrat, sans-serif
+}
+
+section {
+    padding: 50px;
+}
+
+button {
+    /* background: black;
+    color: white; */
+    border-radius: 5px;
+    border: 1px solid gray;
+    cursor: pointer;
+    min-height: 25px;
+    min-width: 50px;
+    padding: 10px;
+}

@@ -28,7 +28,7 @@ import * as neosensory from 'neosensory'
 
 ## Hardware
 
-This library connects any Neosensory hardware—currently just Buzz.
+This library connects any Neosensory hardware (currently just Buzz).
 
 ## Documentation
 
