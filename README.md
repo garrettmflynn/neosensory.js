@@ -32,11 +32,11 @@ This library connects any Neosensory hardware (currently just Buzz).
 
 ## Documentation
 
-See the pages for the module at https://brainsatplay.com/neosensory.js. The platform-agnostic API documentation may be obtained at https://neosensory.com/developers/.
+See detailed documentation for this library at https://brainsatplay.com/neosensory.js. Additionally, Neosensory's platform-agnostic API documentation may be obtained at https://neosensory.com/developers/.
 
 ## Examples
 
-Currently this repo contains a browser-based [example]{@tutorial Dashboard} that allows you to connect to your Buzz device, change its LEDs, and vibrate its motors.
+Currently this repo contains a browser-based example in the `docs/examples` folder that allows you to connect to your Buzz device, change its LEDs, and vibrate its motors.
 
 ## License
 
