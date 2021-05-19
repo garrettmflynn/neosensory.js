@@ -26,7 +26,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// Garrett Flynn, Apache 2.0 License
+            <pre class="prettyprint source linenums"><code>
+// Garrett Flynn, Apache 2.0 License
+import 'regenerator-runtime/runtime' //For async functions on node\\
 
 /** @module neosensory 
  * @description A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy.
@@ -39,26 +41,14 @@ export class Buzz {
      * @alias module:neosensory.Buzz 
      * @description A class to manage connections to the Neosensory Buzz
      * @param {callback} ondata Callback function to handle app logic
-     * @param {callback} onconnect Callback function called on Buzz connection
-     * @param {callback} ondisconnect Callback function called on Buzz disconnection
     */
-    constructor(ondata = () => { }, onconnect = () => { }, ondisconnect = () => { }) {
+    constructor(ondata = () => { }) {
 
         this.interface = null;
         this.readBuffer = []
         this.lastCommand = []
 
         this.interface = new BuzzBLE();
-        let defaultConnectedCallback = this.interface.onConnectedCallback
-        this.interface.onConnectedCallback = () => {
-            defaultConnectedCallback()
-            onconnect();
-        }
-        let defaultDisconnectedCallback = this.interface.onDisconnectedCallback
-        this.interface.onDisconnectedCallback = () => {
-            defaultDisconnectedCallback()
-            ondisconnect();
-        }
         this.interface.onNotificationCallback = (e) => {
             ondata(this.parseResponse(this.interface.decoder.decode(e.target.value)));
         }
@@ -138,8 +128,8 @@ export class Buzz {
      * @description Setup BLE interface.
      */
 
-    connect() {
-        this.interface.connect();
+    async connect() {
+        return await this.interface.connect();
     }
 
     /**
@@ -232,7 +222,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.setLRA
      * @alias setLRA
-     * @description This command sets the LRA operation mode. This setting is not persistent, and will reset to the default (open loop) if the band is reset. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description This command sets the LRA operation mode. This setting is not persistent, and will reset to the default (open loop) if the band is reset. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     setLRA = (mode) => {
@@ -246,7 +236,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.getLRA
      * @alias getLRA
-     * @description This command allows you to read the current LRA vibration mode. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description This command allows you to read the current LRA vibration mode. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     getLRA = () => {
@@ -256,7 +246,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.getLEDs
      * @alias getLEDs
-     * @description Read the current RGB and intensity calues of the device's LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Read the current RGB and intensity calues of the device's LEDs. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
 
     getLEDs = () => {
@@ -266,7 +256,7 @@ export class Buzz {
     /**
      * @method module:neosensory.Buzz.setLEDs
      * @alias setLEDs
-     * @description Control the color and intensity of the device's 3 LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Control the color and intensity of the device's 3 LEDs. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      * @param {array} colors Three nested arrays each containing the rgb values (0-255) for an LED.
      * @param {array} intensities An array of length 3 containing the LED intensity (0-50).
      * @example buzz.setLEDS([[255,0,0],[0,255,0],[0,0,255]],[50,50,50])
@@ -284,7 +274,7 @@ export class Buzz {
         /**
      * @method module:neosensory.Buzz.setButton
      * @alias setButton
-     * @description Control the color and intensity of the device's 3 LEDs. equires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+     * @description Set button response and sensitivity. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      * @param {boolean} feedback Allow the device to send a response when any button is pressed.
      * @param {boolean} sensitivity Allow sensitivity changes to the microphone.
      */
@@ -377,8 +367,8 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
 
 
     //Typical web BLE calls
-    connect = (serviceUUID = this.serviceUUID, rxUUID = this.rxUUID, txUUID = this.txUUID) => { //Must be run by button press or user-initiated call
-        navigator.bluetooth.requestDevice({
+    connect = async (serviceUUID = this.serviceUUID, rxUUID = this.rxUUID, txUUID = this.txUUID) => { //Must be run by button press or user-initiated call
+        return await navigator.bluetooth.requestDevice({
             filters: [
                 { services: [serviceUUID] },
                 { namePrefix: 'Buzz' }
@@ -402,7 +392,10 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
                 this.txchar = characteristic;
                 return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this.onNotificationCallback) }); // Subscribe to stream
             })
-            .then(sleeper(100)).then(this.onConnectedCallback())
+            .then(sleeper(100)).then(()=>{
+                this.onConnectedCallback()
+                return this.device
+            })
             .catch(err => { console.error(err); this.onErrorCallback(err); });
 
         function sleeper(ms) {
@@ -415,6 +408,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
     onNotificationCallback = (e) => { }
 
     onConnectedCallback = () => { }
+    onErrorCallback = () => { }
 
     sendMessage = (msg) => {
         if (msg[msg.length - 2] != '\n') msg += '\n'
@@ -441,7 +435,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu May 06 2021 20:34:25 GMT-0500 (Central Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed May 19 2021 11:44:51 GMT-0500 (Central Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

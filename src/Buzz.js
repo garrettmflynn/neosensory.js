@@ -13,8 +13,6 @@ export class Buzz {
      * @alias module:neosensory.Buzz 
      * @description A class to manage connections to the Neosensory Buzz
      * @param {callback} ondata Callback function to handle app logic
-     * @param {callback} onconnect Callback function called on Buzz connection
-     * @param {callback} ondisconnect Callback function called on Buzz disconnection
     */
     constructor(ondata = () => { }) {
 
@@ -66,7 +64,7 @@ export class Buzz {
      */
     pauseDeviceAlgorithm() {
         this.stopAudio()
-        this.startMotors()
+        this.enableMotors()
     }
 
     /**
