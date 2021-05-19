@@ -1,4 +1,6 @@
+
 // Garrett Flynn, Apache 2.0 License
+import 'regenerator-runtime/runtime' //For async functions on node\\
 
 /** @module neosensory 
  * @description A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy.
@@ -14,23 +16,13 @@ export class Buzz {
      * @param {callback} onconnect Callback function called on Buzz connection
      * @param {callback} ondisconnect Callback function called on Buzz disconnection
     */
-    constructor(ondata = () => { }, onconnect = () => { }, ondisconnect = () => { }) {
+    constructor(ondata = () => { }) {
 
         this.interface = null;
         this.readBuffer = []
         this.lastCommand = []
 
         this.interface = new BuzzBLE();
-        let defaultConnectedCallback = this.interface.onConnectedCallback
-        this.interface.onConnectedCallback = () => {
-            defaultConnectedCallback()
-            onconnect();
-        }
-        let defaultDisconnectedCallback = this.interface.onDisconnectedCallback
-        this.interface.onDisconnectedCallback = () => {
-            defaultDisconnectedCallback()
-            ondisconnect();
-        }
         this.interface.onNotificationCallback = (e) => {
             ondata(this.parseResponse(this.interface.decoder.decode(e.target.value)));
         }
@@ -110,8 +102,8 @@ export class Buzz {
      * @description Setup BLE interface.
      */
 
-    connect() {
-        this.interface.connect();
+    async connect() {
+        return await this.interface.connect();
     }
 
     /**
@@ -349,8 +341,8 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
 
 
     //Typical web BLE calls
-    connect = (serviceUUID = this.serviceUUID, rxUUID = this.rxUUID, txUUID = this.txUUID) => { //Must be run by button press or user-initiated call
-        navigator.bluetooth.requestDevice({
+    connect = async (serviceUUID = this.serviceUUID, rxUUID = this.rxUUID, txUUID = this.txUUID) => { //Must be run by button press or user-initiated call
+        return await navigator.bluetooth.requestDevice({
             filters: [
                 { services: [serviceUUID] },
                 { namePrefix: 'Buzz' }
@@ -374,7 +366,10 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
                 this.txchar = characteristic;
                 return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this.onNotificationCallback) }); // Subscribe to stream
             })
-            .then(sleeper(100)).then(this.onConnectedCallback())
+            .then(sleeper(100)).then(()=>{
+                this.onConnectedCallback()
+                return this.device
+            })
             .catch(err => { console.error(err); this.onErrorCallback(err); });
 
         function sleeper(ms) {
@@ -387,6 +382,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
     onNotificationCallback = (e) => { }
 
     onConnectedCallback = () => { }
+    onErrorCallback = () => { }
 
     sendMessage = (msg) => {
         if (msg[msg.length - 2] != '\n') msg += '\n'

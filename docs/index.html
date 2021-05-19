@@ -6,7 +6,7 @@
 
 
   <!-- FOR DEPLOYMENT -->
-  <script src="https://cdn.jsdelivr.net/npm/neosensory"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/neosensory"></script> -->
 
   <!-- FOR DEVELOPMENT -->
   <script src="../dist/neosensory.js"></script>
@@ -90,20 +90,16 @@
             // })
         }
     },
-    
-    // Connection Function
-    ()=>{ console.log('connected');},
-    
-    // Disconnect Function
-    ()=>{ console.log('disconnected');}
     )
     
-    document.getElementById('connect').onclick = () =>{
-        device.connect()
+    document.getElementById('connect').onclick = async () =>{
+        await device.connect()
+        document.getElementById('message').innerHTML = 'connected'
     }
     
     document.getElementById('disconnect').onclick = () =>{
         device.disconnect();
+        document.getElementById('message').innerHTML = 'disconnected'
     }
     
     document.getElementById('request').onclick = () => {
