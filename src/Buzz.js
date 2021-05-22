@@ -320,7 +320,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
                 this.server = await this.device.gatt.connect()
                 this.service = await this.server.getPrimaryService(serviceUUID);
                 this.rxchar = await this.service.getCharacteristic(rxUUID);
-                this.txchar =await this.service.getCharacteristic(txUUID) // Get stream source
+                this.txchar = await this.service.getCharacteristic(txUUID) // Get stream source
                 this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this._onNotificationCallback) }); // Subscribe to stream
                 this.onConnectedCallback()
                 return this.device
