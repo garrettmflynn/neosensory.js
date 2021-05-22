@@ -22,8 +22,14 @@ export class Buzz {
 
         this.interface = new BuzzBLE();
         this.interface.onNotificationCallback = (e) => {
-            ondata(this.parseResponse(e));
+            ondata(e);
         }
+
+        let disconnectOnRefresh = () => {
+            this.disconnect()
+            window.removeEventListener('beforeunload', disconnectOnRefresh)
+        }
+        window.addEventListener('beforeunload', disconnectOnRefresh)
     }
 
     /**
@@ -34,7 +40,6 @@ export class Buzz {
      */
     sendCommand = (command='') => {
         // return new Promise(async (resolve, reject) => {
-            console.log('calling sendCommand')
             this.interface.sendMessage(command);
         // })
     }
@@ -58,6 +63,7 @@ export class Buzz {
 
     acceptTerms = () => {
         this.sendCommand('accept\n')
+        this.pauseDeviceAlgorithm()
     }
 
     /**
@@ -68,6 +74,7 @@ export class Buzz {
     pauseDeviceAlgorithm = () => {
         this.stopAudio()
         this.enableMotors()
+        this.clearMotorQueue()
     }
 
     /**
@@ -104,7 +111,8 @@ export class Buzz {
      */
 
     connect = async () => {
-        return await this.interface.connect();
+        let res = await this.interface.connect();
+        return res
     }
 
     /**
@@ -113,7 +121,6 @@ export class Buzz {
      * @description Starts the device’s microphone audio acquisition. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
     startAudio = () => {
-        console.log('calling startAudio')
         this.sendCommand('audio start\n')
     }
 
@@ -263,53 +270,6 @@ export class Buzz {
         this.sendCommand(`set_buttons_response ${feedback} ${sensitivity}\n`)
     }
 
-
-    waitToResolve = async (command, callback=(res)=>{console.log(res)}) => {
-        callback('res')
-    }
-
-    /**
-     * @method module:neosensory.Buzz.parseResponse
-     * @alias parseResponse
-     * @description Parse JSON response from the device.
-     * @param {utf8} response UTF-8 byte array.
-     */
-
-    parseResponse = (response) =>  {
-        let complete = false
-        if (response.indexOf("{") != -1 && this.readBuffer.length == 0) {
-            this.lastCommand = response.slice(0, response.indexOf("{"))
-            if (response.lastIndexOf("}") != -1) {
-                this.readBuffer.push(response.substring(
-                    response.indexOf("{"),
-                    response.lastIndexOf("}") + 1,
-                ))
-                complete = true;
-            } else {
-                this.readBuffer.push(response.substring(response.indexOf("{")))
-            }
-        } else {
-            if (response.lastIndexOf("}") != -1) {
-                this.readBuffer.push(response.substring(
-                    0,
-                    response.lastIndexOf("}") + 1,
-                ))
-                complete = true;
-            } else if (this.readBuffer.length != 0) {
-                this.readBuffer.push(response)
-            }
-        }
-
-        if (complete) {
-            let joinedBuffer = this.readBuffer.join('')
-            this.readBuffer = []
-            response = JSON.parse(joinedBuffer)
-            response.command = this.lastCommand
-            this.readBuffer = []
-            return response
-        }
-    }
-
     /**
      * @method module:neosensory.Buzz.disconnect
      * @alias disconnect
@@ -338,7 +298,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         this.txchar = null; //transmitter on the BLE device (read from this)
 
         this.queue = []
-
+        this.readBuffer = []
 
         this.android = navigator.userAgent.toLowerCase().indexOf("android") > -1; //Use fast mode on android (lower MTU throughput)
 
@@ -388,31 +348,93 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
     onNotificationCallback = (e) => { } // Defined by user
 
     _onNotificationCallback = (e) => { // Ensure that there is no GATT write overlap
-        this.queue.shift(); 
-        this.onNotificationCallback(this.decoder.decode(e.target.value))
+        
+        let res = this.decoder.decode(e.target.value)
+        let completed = this.parseResponse(res)
+        let noQueueItem = 'motor queue full'
 
-        if (this.queue.length !== 0){
-            setTimeout(() => {
-                this.rxchar.writeValue(this.queue[0]);
-            },16)
+        if (completed && !completed.message.includes(noQueueItem)){ // Only run on completed responses
+            let lastItem = this.queue.shift()
+            lastItem.callback()
+
+            if (this.queue.length !== 0){
+                let nextItem = this.queue.slice(0,1)[0]
+                this.writeValue(nextItem.msg);
+            }
+
+            this.onNotificationCallback(completed)
+        } else {
+            if (completed && completed.message.includes(noQueueItem)) console.log(noQueueItem)
+        }
+    }
+
+    writeValue = (val) => {
+        return new Promise(resolve => {
+            this.rxchar.writeValue(this.encoder.encode(val))
+            resolve()
+            setTimeout(()=>{resolve()}, 50) // Throttle Write Commands
+        });
+    }
+
+
+    /**
+     * @method module:neosensory.Buzz.parseResponse
+     * @alias parseResponse
+     * @description Parse JSON response from the device.
+     * @param {utf8} response UTF-8 byte array.
+     */
+
+    parseResponse = (response) =>  {
+        let complete = false
+        if (response.indexOf("{") != -1 && this.readBuffer.length == 0) {
+            this.lastCommand = response.slice(0, response.indexOf("{"))
+            if (response.lastIndexOf("}") != -1) {
+                this.readBuffer.push(response.substring(
+                    response.indexOf("{"),
+                    response.lastIndexOf("}") + 1,
+                ))
+                complete = true;
+            } else {
+                this.readBuffer.push(response.substring(response.indexOf("{")))
+            }
+        } else {
+            if (response.lastIndexOf("}") != -1) {
+                this.readBuffer.push(response.substring(
+                    0,
+                    response.lastIndexOf("}") + 1,
+                ))
+                complete = true;
+            } else if (this.readBuffer.length != 0) {
+                this.readBuffer.push(response)
+            }
+        }
+
+        if (complete) {
+            let joinedBuffer = this.readBuffer.join('')
+            this.readBuffer = []
+            response = JSON.parse(joinedBuffer)
+            response.command = this.lastCommand
+            this.readBuffer = []
+            return response
         }
     }
 
     onConnectedCallback = () => { }
     onErrorCallback = () => { }
 
-    sendMessage = (msg) => {
+    sendMessage = (msg,callback=()=>{}) => {
         if (msg[msg.length - 2] != '\n') msg += '\n'
-        let encoded = this.encoder.encode(msg)
-        if (this.queue.length === 0) {
-            this.rxchar.writeValue(encoded);
+        let noResponseExpected = 'motors vibrate'
+        if (!msg.includes(noResponseExpected)) this.queue.push({msg,callback})
+        if (this.queue.length <= 1 || msg.includes(noResponseExpected)) {
+            this.writeValue(msg);
         }
-        this.queue.push(encoded)
+
     }
 
     disconnect = () => { 
-        this.device.gatt.disconnect()
-        this.onDisconnectedCallback() 
+        this.queue = []
+        setTimeout(() => {this.sendMessage('audio start\n', () => {this.device.gatt.disconnect();this.onDisconnectedCallback()})}, 50) // Resume device algorithm
     };
 
     onDisconnectedCallback = () => { }
