@@ -17,8 +17,9 @@ export class Buzz {
     constructor(ondata = () => { }) {
 
         this.interface = null;
-        this.readBuffer = []
-        this.lastCommand = []
+
+        this.minIntensity = 15;
+        this.maxIntensity = 255;
 
         this.interface = new BuzzBLE();
         this.interface.onNotificationCallback = (e) => {
@@ -114,6 +115,16 @@ export class Buzz {
         let res = await this.interface.connect();
         return res
     }
+
+    /**
+     * @method module:neosensory.Buzz.disconnect
+     * @alias disconnect
+     * @description Disconnect the device.
+     */
+    disconnect = () =>  {
+        this.interface.disconnect();
+    }
+
 
     /**
      * @method module:neosensory.Buzz.startAudio
@@ -270,13 +281,65 @@ export class Buzz {
         this.sendCommand(`set_buttons_response ${feedback} ${sensitivity}\n`)
     }
 
+    // Advanced Methods
     /**
-     * @method module:neosensory.Buzz.disconnect
-     * @alias disconnect
-     * @description Disconnect the device.
+     * @method module:neosensory.Buzz.getIllusionActivations
+     * @alias getIllusionActivations
+     * @description Get activations. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+    * @param {float} linearIntensity Between 0-1 
+    * @param {float} location Between 0-1 
      */
-    disconnect = () =>  {
-        this.interface.disconnect();
+    
+    getIllusionActivations(linearIntensity, location){
+        let motorIntensity = this.getMotorIntensity(linearIntensity, this.minIntensity, this.maxIntensity);
+        let motor1 = Math.floor(location / .25)
+        let motor2 = Math.ceil(location / .25)
+        let ratio = 4*(location%0.25)
+        let values = Array(4).fill(0)
+        values[motor1] = 255*motorIntensity*Math.sqrt((1 - ratio))
+        values[motor2] = 255*motorIntensity*Math.sqrt(ratio)
+        return values
+    }
+
+    /**
+     * @method module:neosensory.Buzz.getMotorIntensity
+     * @alias getMotorIntensity
+     * @description Get motor intensity. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
+    * @param {float} linearIntensity Between 0-1 
+    * @param {float} minIntensity Between 0-255
+    * @param {float} maxIntensity Between 0-255
+     */
+    
+    getMotorIntensity(linearIntensity, minIntensity, maxIntensity){
+        if (linearIntensity <= 0) return minIntensity
+        if (linearIntensity >= 1) return maxIntensity
+        return Math.expm1(linearIntensity) / (Math.E - 1) * (maxIntensity - minIntensity) + minIntensity;
+    }
+
+    mapFrequencies(fft){
+        function indexOfMax(arr) {
+            if (arr.length === 0) {
+                return -1;
+            }
+        
+            var max = arr[0];
+            var maxIndex = 0;
+        
+            for (var i = 1; i < arr.length; i++) {
+                if (arr[i] > max) {
+                    maxIndex = i;
+                    max = arr[i];
+                }
+            }
+        
+            return maxIndex;
+        }
+
+        // Store running mean
+        let i = indexOfMax(fft)
+        let location = i/fft.length
+        console.log(location)
+        return this.getIllusionActivations(1,location)
     }
 }
 
@@ -337,11 +400,16 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         let noQueueItem = 'motor queue full'
         if (completed && (completed.data != null || !completed.message.includes(noQueueItem))){ // Only run on completed responses
             let lastItem = this.queue.shift()
-            lastItem.callback()
+            if (lastItem){
+                console.log(completed)
+                lastItem.callback()
 
-            if (this.queue.length !== 0){
-                let nextItem = this.queue.slice(0,1)[0]
-                this.writeValue(nextItem.msg);
+                if (this.queue.length !== 0){
+                    let nextItem = this.queue.slice(0,1)[0]
+                    this.writeValue(nextItem.msg);
+                }
+            } else {
+                // console.log(completed.command)
             }
 
             this.onNotificationCallback(completed)
@@ -352,6 +420,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
 
     writeValue = (val) => {
         return new Promise(resolve => {
+            console.log(val)
             this.rxchar.writeValue(this.encoder.encode(val))
             resolve()
             setTimeout(()=>{resolve()}, 50) // Throttle Write Commands
