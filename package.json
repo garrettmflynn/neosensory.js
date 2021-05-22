@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/brainsatplay/neosensory.js#readme",
   "dependencies": {
+    "babel-plugin-transform-class-properties": "^6.24.1"
   },
   "devDependencies": {
     "webpack-cli": "^4.6.0",

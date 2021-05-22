@@ -6,10 +6,10 @@
 
 
   <!-- FOR DEPLOYMENT -->
-  <script src="https://cdn.jsdelivr.net/npm/neosensory"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/neosensory"></script> -->
 
   <!-- FOR DEVELOPMENT -->
-  <!-- <script src="../dist/neosensory.js"></script> -->
+  <script src="../dist/neosensory.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -82,12 +82,7 @@
     (response) => {
         if (response) {
             let messageDiv = document.getElementById('message')
-            // let separatedResponse = JSON.stringify(response).split(',')
             messageDiv.innerHTML = JSON.stringify(response)
-            // separatedResponse.forEach(p => {
-            //     messageDiv.innerHTML += `<p>${p.replace(':',': ')}</p>`
-    
-            // })
         }
     },
     )

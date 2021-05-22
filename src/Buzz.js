@@ -315,24 +315,23 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
             ],
             optionalServices: [serviceUUID]
         })
-            .then(device => {
+            .then(async device => {
                 this.device = device;
-                return device.gatt.connect()
+                let server = await this.device.gatt.connect()
+                return server
             })
-            .then(sleeper(100)).then(server => server.getPrimaryService(serviceUUID))
-            .then(sleeper(100)).then(service => {
+            .then(async server => await server.getPrimaryService(serviceUUID))
+            .then(async service => {
                 this.service = service;
-                service.getCharacteristic(rxUUID).then(sleeper(100)).then(characteristic => {
-                    this.rxchar = characteristic;
-                    return true // tx.writeValue(this.encoder.encode("t")); // Send command to start HEG automatically (if not already started)
-                });
-                return service.getCharacteristic(txUUID) // Get stream source
+                characteristic = await this.service.getCharacteristic(rxUUID)
+                this.rxchar = characteristic;
+                return this.service.getCharacteristic(txUUID) // Get stream source
             })
-            .then(sleeper(1100)).then(characteristic => {
+            .then(characteristic => {
                 this.txchar = characteristic;
                 return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this._onNotificationCallback) }); // Subscribe to stream
             })
-            .then(sleeper(100)).then(()=>{
+            .then(()=>{
                 this.onConnectedCallback()
                 return this.device
             })
