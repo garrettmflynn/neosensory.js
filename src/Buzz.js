@@ -317,31 +317,15 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         })
             .then(async device => {
                 this.device = device;
-                let server = await this.device.gatt.connect()
-                return server
-            })
-            .then(async server => await server.getPrimaryService(serviceUUID))
-            .then(async service => {
-                this.service = service;
-                characteristic = await this.service.getCharacteristic(rxUUID)
-                this.rxchar = characteristic;
-                return this.service.getCharacteristic(txUUID) // Get stream source
-            })
-            .then(characteristic => {
-                this.txchar = characteristic;
-                return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this._onNotificationCallback) }); // Subscribe to stream
-            })
-            .then(()=>{
+                this.server = await this.device.gatt.connect()
+                this.service = await this.server.getPrimaryService(serviceUUID);
+                this.rxchar = await this.service.getCharacteristic(rxUUID);
+                this.txchar =await this.service.getCharacteristic(txUUID) // Get stream source
+                this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this._onNotificationCallback) }); // Subscribe to stream
                 this.onConnectedCallback()
                 return this.device
             })
             .catch(err => { console.error(err); this.onErrorCallback(err); });
-
-        function sleeper(ms) {
-            return function (x) {
-                return new Promise(resolve => setTimeout(() => resolve(x), ms));
-            };
-        }
     }
 
     onNotificationCallback = (e) => { } // Defined by user
