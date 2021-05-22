@@ -3,7 +3,7 @@ A JavaScript SDK to help streamline controlling Neosensory devices over Bluetoot
 
 **Note:** Chromium browsers only (e.g. Google Chrome, Microsoft Edge, Opera, etc.)
 
-**Note:** Users have reported issues connecting their Buzz on Windows computers.
+**Note:** Some users (usually on Windows) may have to force pair their Buzz to their computer by holding down the + and - buttons at the same time.
 
 
 [![](https://img.shields.io/badge/github-source_code-blue.svg?logo=github&logoColor=white)](https://github.com/brainsatplay/neosensory.js)
