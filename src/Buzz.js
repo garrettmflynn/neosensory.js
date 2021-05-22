@@ -22,7 +22,7 @@ export class Buzz {
 
         this.interface = new BuzzBLE();
         this.interface.onNotificationCallback = (e) => {
-            ondata(this.parseResponse(this.interface.decoder.decode(e.target.value)));
+            ondata(this.parseResponse(e));
         }
     }
 
@@ -32,8 +32,11 @@ export class Buzz {
      * @description A function to encode command strings and send to the device
      * @params {string} Command to send to the device
      */
-    sendCommand(command = '') {
-        this.interface.sendMessage(command);
+    sendCommand = (command='') => {
+        // return new Promise(async (resolve, reject) => {
+            console.log('calling sendCommand')
+            this.interface.sendMessage(command);
+        // })
     }
 
     /**
@@ -41,7 +44,7 @@ export class Buzz {
      * @alias requestAuthorization
      * @description Request developer authorization (https://neosensory.com/legal/dev-terms-service)
      */
-    requestAuthorization() {
+    requestAuthorization = () => {
         this.sendCommand('auth as developer\n')
     }
 
@@ -53,7 +56,7 @@ export class Buzz {
      * motors_stop, motors vibrate.
      */
 
-    acceptTerms() {
+    acceptTerms = () => {
         this.sendCommand('accept\n')
     }
 
@@ -62,7 +65,7 @@ export class Buzz {
      * @alias pauseDeviceAlgorithm
      * @description Pause the default Neosensory algorithm on the device to accept developer commands. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
-    pauseDeviceAlgorithm() {
+    pauseDeviceAlgorithm = () => {
         this.stopAudio()
         this.enableMotors()
     }
@@ -72,7 +75,7 @@ export class Buzz {
      * @alias resumeDeviceAlgorithm
      * @description Restart the default Neosensory algorithm. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
-    resumeDeviceAlgorithm() {
+    resumeDeviceAlgorithm = () => {
         this.startAudio()
     }
 
@@ -81,7 +84,7 @@ export class Buzz {
      * @alias battery
      * @description Request the current battery level from the device.
      */
-    battery() {
+    battery = () => {
         this.sendCommand('device battery_soc\n')
     }
 
@@ -90,7 +93,7 @@ export class Buzz {
      * @alias info
      * @description Obtain device and firmware information.
      */
-    info() {
+    info = () => {
         this.sendCommand('device info\n')
     }
 
@@ -100,7 +103,7 @@ export class Buzz {
      * @description Setup BLE interface.
      */
 
-    async connect() {
+    connect = async () => {
         return await this.interface.connect();
     }
 
@@ -110,6 +113,7 @@ export class Buzz {
      * @description Starts the device’s microphone audio acquisition. Requires users to [requestAuthorization()]{@link module:neosensory.Buzz.requestAuthorization} and [acceptTerms()]{@link module:neosensory.Buzz.acceptTerms}.
      */
     startAudio = () => {
+        console.log('calling startAudio')
         this.sendCommand('audio start\n')
     }
 
@@ -259,6 +263,11 @@ export class Buzz {
         this.sendCommand(`set_buttons_response ${feedback} ${sensitivity}\n`)
     }
 
+
+    waitToResolve = async (command, callback=(res)=>{console.log(res)}) => {
+        callback('res')
+    }
+
     /**
      * @method module:neosensory.Buzz.parseResponse
      * @alias parseResponse
@@ -266,11 +275,11 @@ export class Buzz {
      * @param {utf8} response UTF-8 byte array.
      */
 
-    parseResponse(response) {
+    parseResponse = (response) =>  {
         let complete = false
         if (response.indexOf("{") != -1 && this.readBuffer.length == 0) {
+            this.lastCommand = response.slice(0, response.indexOf("{"))
             if (response.lastIndexOf("}") != -1) {
-                this.lastCommand = response.slice(0, response.indexOf("{"))
                 this.readBuffer.push(response.substring(
                     response.indexOf("{"),
                     response.lastIndexOf("}") + 1,
@@ -306,11 +315,8 @@ export class Buzz {
      * @alias disconnect
      * @description Disconnect the device.
      */
-    disconnect() {
+    disconnect = () =>  {
         this.interface.disconnect();
-        delete this.audio
-        delete this.motors
-        delete this.leds
     }
 }
 
@@ -331,6 +337,8 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         this.rxchar = null; //receiver on the BLE device (write to this)
         this.txchar = null; //transmitter on the BLE device (read from this)
 
+        this.queue = []
+
 
         this.android = navigator.userAgent.toLowerCase().indexOf("android") > -1; //Use fast mode on android (lower MTU throughput)
 
@@ -349,7 +357,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         })
             .then(device => {
                 this.device = device;
-                return device.gatt.connect(); //Connect to Buzz
+                return device.gatt.connect()
             })
             .then(sleeper(100)).then(server => server.getPrimaryService(serviceUUID))
             .then(sleeper(100)).then(service => {
@@ -362,7 +370,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
             })
             .then(sleeper(1100)).then(characteristic => {
                 this.txchar = characteristic;
-                return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this.onNotificationCallback) }); // Subscribe to stream
+                return this.txchar.startNotifications().then(() => { this.txchar.addEventListener('characteristicvaluechanged', this._onNotificationCallback) }); // Subscribe to stream
             })
             .then(sleeper(100)).then(()=>{
                 this.onConnectedCallback()
@@ -377,7 +385,18 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         }
     }
 
-    onNotificationCallback = (e) => { }
+    onNotificationCallback = (e) => { } // Defined by user
+
+    _onNotificationCallback = (e) => { // Ensure that there is no GATT write overlap
+        this.queue.shift(); 
+        this.onNotificationCallback(this.decoder.decode(e.target.value))
+
+        if (this.queue.length !== 0){
+            setTimeout(() => {
+                this.rxchar.writeValue(this.queue[0]);
+            },16)
+        }
+    }
 
     onConnectedCallback = () => { }
     onErrorCallback = () => { }
@@ -385,10 +404,16 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
     sendMessage = (msg) => {
         if (msg[msg.length - 2] != '\n') msg += '\n'
         let encoded = this.encoder.encode(msg)
-        this.rxchar.writeValue(encoded);
+        if (this.queue.length === 0) {
+            this.rxchar.writeValue(encoded);
+        }
+        this.queue.push(encoded)
     }
 
-    disconnect = () => { this.server?.disconnect(); this.onDisconnectedCallback() };
+    disconnect = () => { 
+        this.device.gatt.disconnect()
+        this.onDisconnectedCallback() 
+    };
 
     onDisconnectedCallback = () => { }
 }
