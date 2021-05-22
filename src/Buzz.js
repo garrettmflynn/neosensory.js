@@ -352,8 +352,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
         let res = this.decoder.decode(e.target.value)
         let completed = this.parseResponse(res)
         let noQueueItem = 'motor queue full'
-
-        if (completed && !completed.message.includes(noQueueItem)){ // Only run on completed responses
+        if (completed && (completed.data != null || !completed.message.includes(noQueueItem))){ // Only run on completed responses
             let lastItem = this.queue.shift()
             lastItem.callback()
 
@@ -364,7 +363,7 @@ export class BuzzBLE { //This is formatted for the way the Neosensory Buzz sends
 
             this.onNotificationCallback(completed)
         } else {
-            if (completed && completed.message.includes(noQueueItem)) console.log(noQueueItem)
+            if (completed && completed?.message?.includes(noQueueItem)) console.log(noQueueItem)
         }
     }
 

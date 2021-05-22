@@ -1,6 +1,6 @@
 {
   "name": "neosensory",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "A JavaScript SDK to help streamline controlling Neosensory devices over Bluetooth Low Energy.",
   "main": "dist/neosensory.js",
   "module": "neosensory.js",
